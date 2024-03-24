@@ -1,11 +1,11 @@
 import { combineReducers } from "redux";
 
-import picturesReducer from "./reducers";
+import favoritePicturesReducer from "./reducers";
 
 // Import all reducers
 
 const reducers = combineReducers({
-    pictures: picturesReducer
+    favorites: favoritePicturesReducer
 })
 
 export default reducers;
