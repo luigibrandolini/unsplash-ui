@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  distDir: "dist",
+  basePath: "/unsplash-ui",
   output: "export",
+  distDir: "dist",
+  reactStrictMode: true,
   images: {
     unoptimized: true,
     remotePatterns: [
