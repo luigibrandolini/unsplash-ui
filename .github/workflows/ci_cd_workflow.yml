@@ -25,5 +25,4 @@ jobs:
         with:
           github_token: ${{ secrets.ERMES }}
           publish_dir: ./dist
-          enable_jekyll: false
-          cname: github.io
+          enable_jekyll: true
