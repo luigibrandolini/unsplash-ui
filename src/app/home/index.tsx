@@ -1,64 +1,66 @@
 "use client";
 import styles from "../paginator.module.css";
 
-import { useState, FormEvent } from "react";
+import { useState, FormEvent, useEffect } from "react";
 import ReactPaginate from "react-paginate";
 import { ScaleLoader } from "react-spinners";
 import { SearchResponse } from "../model/SearchResponse";
 import { Gallery } from "../components/Gallery";
 
 export default function Home() {
-  let [color, setColor] = useState("rgba(37, 99, 235, 1)");
+  let [color] = useState("rgba(37, 99, 235, 1)");
 
-  const [userWord, setUserWord] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [searchWord, setSearchWord] = useState("");
+  const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
   const [loading, setLoading] = useState(false);
-  const [picWrapper, setPicWrapper] = useState({
+  const [searchResponse, setSearchResponse] = useState({
     total: 0,
     total_pages: 0,
     results: [],
   });
 
-  /*const picsData: Picture[] = useSelector((state: any) => {
-    return state?.pictures?.pictures;
-  });*/
-
-  const submit = (ev: FormEvent) => {
+  const handleSubmit = (ev: FormEvent) => {
     setLoading(true);
+    setCurrentPage(0);
     ev.preventDefault();
     fetchPictures();
   };
 
-  const onPageChange = (e: any) => {
+  const handlePageChange = (e: any) => {
     console.log(`[Home] Selected page: ${e.selected}`);
     setCurrentPage(e.selected + 1);
-    picWrapper.results = [];
-    setPicWrapper(picWrapper);
-    fetchPictures();
   };
 
   const fetchPictures = async () => {
-    const searchWord = !userWord ? randomWordGenerator() : userWord;
+    let keyWord = !searchWord ? getRandomSearchWord() : searchWord;
 
-    console.log(`[Home] Word to search for: ${searchWord}`);
+    setSearchWord(keyWord);
+
+    console.log(`[Home] Word to search for: ${keyWord}`);
 
     const response = await fetch(
-      `https://api.unsplash.com/search/photos/?query=${searchWord}&page=${currentPage}&client_id=KYj4qqwnERHg-kkOos3OkcnX9Q_Mz6jBI6JQJuSTXL0`
+      `https://api.unsplash.com/search/photos/?query=${keyWord}&page=${currentPage}&client_id=KYj4qqwnERHg-kkOos3OkcnX9Q_Mz6jBI6JQJuSTXL0`
     );
-    const responseJson: any = (await response.json()) as SearchResponse;
-    setPicWrapper(responseJson);
+    const searchResponse: any = (await response.json()) as SearchResponse;
+    setSearchResponse(searchResponse);
     setLoading(false);
   };
 
-  const randomWordGenerator = () => {
+  useEffect(() => {
+    if(currentPage != 0) {
+      fetchPictures();
+    }
+}, [currentPage]);
+
+  const getRandomSearchWord = () => {
     var words = ["Horse", "Pig", "Dog", "Cat", "Parrot", "Iguana"];
     return words[Math.floor(Math.random() * words.length)];
   };
 
   return (
     <>
-      <form className="max-w-md mx-auto" onSubmit={submit}>
+      <form className="max-w-md mx-auto" onSubmit={handleSubmit}>
         <label
           htmlFor="default-search"
           className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
@@ -85,8 +87,8 @@ export default function Home() {
           </div>
           <input
             type="search"
-            value={userWord}
-            onChange={(e) => setUserWord(e.target.value)}
+            value={searchWord}
+            onChange={(e) => setSearchWord(e.target.value)}
             id="default-search"
             className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             placeholder="Search photos.."
@@ -113,7 +115,7 @@ export default function Home() {
           </div>
         ) : (
           <>
-            <Gallery pictures={picWrapper.results} />
+            <Gallery pictures={searchResponse.results} />
             <br />
             <ReactPaginate
               activeClassName={styles.pageItemActive}
@@ -123,9 +125,9 @@ export default function Home() {
               disabledClassName={"disabled-page"}
               marginPagesDisplayed={2}
               nextLabel=">"
-              onPageChange={onPageChange}
+              onPageChange={handlePageChange}
               pageRangeDisplayed={pageSize}
-              pageCount={picWrapper.total_pages}
+              pageCount={searchResponse.total_pages}
               previousLabel="<"
               renderOnZeroPageCount={null}
             />
