@@ -9,7 +9,7 @@ const favoritePicturesReducer = (state = initialState, action: any) => {
     switch (action.type) {
         case "addPictureToFavorites":
             return {
-                pictures: [...action, action.payload],
+                pictures: state?.favorites.push(action.payload),
             }
 
         default: 

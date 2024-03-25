@@ -2,15 +2,25 @@ import { Picture } from "../model/Picture";
 import Image from "next/image";
 import { useState } from "react";
 import Modal from "./Modal";
+import { useDispatch, useSelector } from "react-redux";
+import { addPictureToFavorites } from "@/lib/state/actions";
 
 type Props = {
   pictures: Picture[];
 };
 
 export const Gallery: React.FC<Props> = ({ pictures }) => {
+
+ const favoritePics: Picture[] = useSelector((state: any) => {
+    return state?.favorites;
+  });
+  
+  console.log("[Gallery] Favorites:" + JSON.stringify(favoritePics));
+
   const [selectedImage, setSelectedImage] = useState<Picture | null>(null);
   const [selectedIndex] = useState<number>(0);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const dispatch = useDispatch();
 
   const handleOnClicked = (pic: Picture, index: number) => {
     setSelectedImage(pic);
@@ -35,14 +45,9 @@ export const Gallery: React.FC<Props> = ({ pictures }) => {
     setSelectedImage(null);
   }
 
-  /* 
- const picsData: Picture[] = useSelector((state: any) => {
-    return state?.pictures?.pictures;
-  });
-    console.log("[Gallery] PICS DATA:" + JSON.stringify(picsData));
-  */
-
-  //console.log("[Gallery] PICS DATA:" + JSON.stringify(picWrapper?.results));
+  const handleFavorites = () => {
+   // dispatch(addPictureToFavorites(selectedImage));
+  };
 
   return (
     <>
@@ -73,6 +78,7 @@ export const Gallery: React.FC<Props> = ({ pictures }) => {
             onPrev={handlePrev}
             selectedIndex={selectedIndex}
             onClose={handleClose}
+            addToFavorites={handleFavorites}
           />
         )}
       </div>
